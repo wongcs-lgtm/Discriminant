@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>互動數學教室：探索二次方程式的判別式 (Δ)</title>
+  <!-- 引入 MathJax 以渲染漂亮數學公式 -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --text: #1e293b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 0.5rem 0; font-size: 2rem; }
+    header p { margin: 0; opacity: 0.9; max-width: 700px; margin-inline: auto; }
+    .container {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1.25rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+    }
+    h2 {
+      color: #1e3a8a;
+      border-left: 5px solid var(--primary);
+      padding-left: 0.75rem;
+      margin-top: 0;
+    }
+    .goals-list li { margin-bottom: 0.5rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .badge-pos { background: #dcfce7; color: #15803d; }
+    .badge-zero { background: #fef3c7; color: #b45309; }
+    .badge-neg { background: #fee2e2; color: #b91c1c; }
+
+    /* 互動實驗室樣式 */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .lab-grid { grid-template-columns: 1fr; }
+    }
+    .control-group { margin-bottom: 1rem; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+    .preset-btns {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .btn {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: var(--primary); color: white; }
+    .status-box {
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+    }
+
+    /* 折疊詳解與測驗樣式 */
+    details {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    summary {
+      font-weight: 700;
+      color: var(--primary);
+      cursor: pointer;
+    }
+    .quiz-item {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .quiz-options button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin: 0.4rem 0;
+      padding: 0.65rem 1rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .quiz-options button:hover { background: #f1f5f9; }
+    .feedback { margin-top: 0.5rem; font-weight: 600; display: none; padding: 0.5rem 0.75rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔑 探索二次方程式的秘密鑰匙：判別式 ($\Delta$)</h1>
+  <p>中四數學互動學習講義 — 連結代數公式與拋物線幾何圖像</p>
+</header>
+
+<div class="container">
+
+  <!-- 1. 引言與學習目標 -->
+  <section class="card">
+    <h2>一、引言與學習目標</h2>
+    <p>你是否曾想過，在不真正解開二次方程式的情況下，有沒有辦法「一眼看穿」它到底有幾個解？就像醫學上的 DNA 檢測一樣，二次方程式也有一個神奇的「基因指標」——<strong>判別式（Discriminant）</strong>，能瞬間揭示根的數量與幾何性質。</p>
+    <ul class="goals-list">
+      <li><strong>理解：</strong>判別式 $\Delta = b^2 - 4ac$ 的由來及其與二次公式的內在聯繫。</li>
+      <li><strong>判斷：</strong>一元二次方程式根的性質（兩個相異實根、一個二重實根或沒有實根）。</li>
+      <li><strong>連結：</strong>代數數值與幾何圖像，解釋判別式與拋物線 $x$ 截距數目的對應關係。</li>
+      <li><strong>應用：</strong>利用判別式建立不等式或方程式，求解含未知常數的範圍與數值。</li>
+    </ul>
+  </section>
+
+  <!-- 2. 什麼是判別式 -->
+  <section class="card">
+    <h2>二、什麼是判別式？從二次公式看透「根的基因」</h2>
+    <p>對於一般形式的一元二次方程式 $ax^2 + bx + c = 0$（其中 $a \neq 0$），其根可由二次公式求得：</p>
+    $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+    <p>請把注意力集中在根號內部的數式：<strong>$\Delta = b^2 - 4ac$</strong>。它決定了根號內是正數、零還是負數：</p>
+    <ul>
+      <li><span class="badge badge-pos">當 $\Delta > 0$ 時（兩個相異實根）</span>：根號內為正實數，$\sqrt{\Delta}$ 有意義且不為零，方程式有兩個截然不同的實根。拋物線與 $x$ 軸<strong>相交於 2 點</strong>。</li>
+      <li><span class="badge badge-zero">當 $\Delta = 0$ 時（一個二重實根）</span>：根號內為零，解簡化為 $x = -\frac{b}{2a}$。拋物線與 $x$ 軸<strong>只相交（接觸）於 1 點</strong>（即頂點）。</li>
+      <li><span class="badge badge-neg">當 $\Delta < 0$ 時（沒有實根）</span>：實數範圍內負數沒有平方根，方程式無實數解。拋物線完全懸浮於 $x$ 軸上方或下方，<strong>與 $x$ 軸不相交（0 個交點）</strong>。</li>
+    </ul>
+  </section>
+
+  <!-- 3. 互動實驗室 -->
+  <section class="card">
+    <h2>三、互動實驗室：親手拉動係數看拋物線變化</h2>
+    <p>試著調整下方的 $a, b, c$ 滑桿，或點擊課本範例按鈕，觀察 $\Delta$ 如何控制拋物線 $y = ax^2 + bx + c$ 與 $x$ 軸的交點！</p>
+
+    <div class="preset-btns">
+      <button class="btn" onclick="setCoeffs(1, 4, -5)">範例 1：$x^2+4x-5=0$ ($\Delta > 0$)</button>
+      <button class="btn" onclick="setCoeffs(1, -6, 9)">範例 2：$x^2-6x+9=0$ ($\Delta = 0$)</button>
+      <button class="btn" onclick="setCoeffs(2, 1, 3)">範例 3：$2x^2+x+3=0$ ($\Delta < 0$)</button>
+    </div>
+
+    <div class="lab-grid">
+      <div>
+        <div class="control-group">
+          <label><span>二次項係數 $a$（不可為 0）</span><span id="val-a">1</span></label>
+          <input type="range" id="slider-a" min="-4" max="4" step="0.5" value="1" oninput="updateLab()">
+        </div>
+        <div class="control-group">
+          <label><span>一次項係數 $b$</span><span id="val-b">4</span></label>
+          <input type="range" id="slider-b" min="-10" max="10" step="1" value="4" oninput="updateLab()">
+        </div>
+        <div class="control-group">
+          <label><span>常數項 $c$</span><span id="val-c">-5</span></label>
+          <input type="range" id="slider-c" min="-10" max="10" step="1" value="-5" oninput="updateLab()">
+        </div>
+
+        <div class="status-box" id="lab-status"></div>
+      </div>
+
+      <div>
+        <canvas id="graphCanvas" width="460" height="360"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 實戰破解未知常數 -->
+  <section class="card">
+    <h2>四、實戰破解未知常數：關鍵詞與陷阱</h2>
+    <p>考試中最常要求根據根的性質求未知常數（如 $k, m$）的範圍。請熟記以下關鍵詞轉換：</p>
+    <ul>
+      <li>「有兩個相異實根」 / 「與 $x$ 軸相交於兩點」 $\implies \Delta > 0$</li>
+      <li>「有兩個相等實根」 / 「二重根」 / 「與 $x$ 軸只接觸於一點」 $\implies \Delta = 0$</li>
+      <li>「沒有實根」 / 「與 $x$ 軸不相交」 $\implies \Delta < 0$</li>
+      <li>⚠️ <strong>常見陷阱 —「有實根」：</strong>包含「兩個相異實根」與「一個二重實根」，必須設定 <strong>$\Delta \ge 0$</strong>，且別忘了檢查二次項係數 <strong>$a \neq 0$</strong>！</li>
+    </ul>
+
+    <details>
+      <summary>📌 範例解析 1：利用圖像幾何性質求未知數（點擊展開）</summary>
+      <p><strong>題目：</strong>已知函數 $y = 5x^2 + x + m$ 的圖像與 $x$ 軸不相交，求 $m$ 值的範圍。</p>
+      <p><strong>解答：</strong><br>
+      因為圖像與 $x$ 軸不相交，代表方程 $5x^2 + x + m = 0$ 沒有實根，即 $\Delta < 0$：<br>
+      $$\Delta = 1^2 - 4(5)(m) < 0$$
+      $$1 - 20m < 0 \implies -20m < -1 \implies m > \frac{1}{20}$$
+      </p>
+    </details>
+
+    <details>
+      <summary>📌 典型例題 2：當方程式「有實根」時的雙重條件（點擊展開）</summary>
+      <p><strong>題目：</strong>考慮二次方程式 $kx^2 - 6x - 3 = x^2$。若已知此方程式有實根，求 $k$ 值的範圍。</p>
+      <p><strong>解題四部曲：</strong></p>
+      <ol>
+        <li><strong>整理成一般式：</strong>移項得 $(k - 1)x^2 - 6x - 3 = 0$，其中 $a = k - 1, b = -6, c = -3$。</li>
+        <li><strong>應用判別式條件：</strong>因為有實根，所以 $\Delta \ge 0$：<br>
+        $$\Delta = (-6)^2 - 4(k - 1)(-3) \ge 0 \implies 36 + 12(k - 1) \ge 0 \implies 12k \ge -24 \implies k \ge -2$$</li>
+        <li><strong>檢查二次項係數：</strong>因為是一元二次方程，二次項係數不可為零，故 $k - 1 \neq 0 \implies k \neq 1$。</li>
+        <li><strong>完整解答：</strong>$k \ge -2$ 及 $k \neq 1$。</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- 5. 隨堂互動小測驗 -->
+  <section class="card">
+    <h2>五、隨堂互動闖關測驗</h2>
+
+    <div class="quiz-item">
+      <p><strong>第 1 題：</strong>若二次方程式 $x^2 - 4x + k = 0$ 有兩個相等實根（二重根），求 $k$ 的值。</p>
+      <div class="quiz-options">
+        <button onclick="checkAns(1, false, '再算一次喔！Δ = (-4)² - 4(1)(k) = 16 - 4k = 0。')">A. $k = -4$</button>
+        <button onclick="checkAns(1, true, '答對了！因為 Δ = (-4)² - 4(1)(k) = 0 ⇒ 16 - 4k = 0 ⇒ k = 4。')">B. $k = 4$</button>
+        <button onclick="checkAns(1, false, '注意：題目要求「相等實根」，所以 Δ = 0。')">C. $k = 16$</button>
+      </div>
+      <div id="fb-1" class="feedback"></div>
+    </div>
+
+    <div class="quiz-item">
+      <p><strong>第 2 題：</strong>若函數 $y = -x^2 + 2x + k + 3$ 的圖像與 $x$ 軸不相交，求 $k$ 值的範圍。</p>
+      <div class="quiz-options">
+        <button onclick="checkAns(2, true, '完全正確！Δ = 2² - 4(-1)(k+3) < 0 ⇒ 4 + 4k + 12 < 0 ⇒ 4k < -16 ⇒ k < -4。')">A. $k < -4$</button>
+        <button onclick="checkAns(2, false, '小心正負號！a = -1, b = 2, c = k + 3，所以 Δ = 4 - 4(-1)(k+3) = 16 + 4k < 0。')">B. $k > -4$</button>
+        <button onclick="checkAns(2, false, '與 x 軸不相交代表 Δ < 0，請重新計算 2² - 4(-1)(k+3) < 0。')">C. $k < 2$</button>
+      </div>
+      <div id="fb-2" class="feedback"></div>
+    </div>
+
+    <div class="quiz-item" style="border-bottom:none;">
+      <p><strong>第 3 題（進階陷阱題）：</strong>已知<strong>二次方程式</strong> $(k - 2)x^2 + 4x - 2 = 0$ 有實根，求 $k$ 值的範圍。</p>
+      <div class="quiz-options">
+        <button onclick="checkAns(3, false, '差一點點！別忘了這是「二次方程式」，二次項係數 k - 2 不能等於 0！')">A. $k \ge 0$</button>
+        <button onclick="checkAns(3, false, '「有實根」包含 Δ = 0 的情況，所以要用 ≥ 號，而且要注意二次項係數限制。')">B. $k > 0$ 及 $k \neq 2$</button>
+        <button onclick="checkAns(3, true, '太棒了！Δ = 16 - 4(k-2)(-2) = 16 + 8k - 16 = 8k ≥ 0 ⇒ k ≥ 0，且二次項係數 k - 2 ≠ 0 ⇒ k ≠ 2！')">C. $k \ge 0$ 及 $k \neq 2$</button>
+      </div>
+      <div id="fb-3" class="feedback"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const sliderA = document.getElementById('slider-a');
+  const sliderB = document.getElementById('slider-b');
+  const sliderC = document.getElementById('slider-c');
+  const canvas = document.getElementById('graphCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function setCoeffs(a, b, c) {
+    sliderA.value = a;
+    sliderB.value = b;
+    sliderC.value = c;
+    updateLab();
+  }
+
+  function updateLab() {
+    let a = parseFloat(sliderA.value);
+    if (a === 0) { a = 0.5; sliderA.value = 0.5; }
+    const b = parseFloat(sliderB.value);
+    const c = parseFloat(sliderC.value);
+
+    document.getElementById('val-a').textContent = a;
+    document.getElementById('val-b').textContent = b;
+    document.getElementById('val-c').textContent = c;
+
+    const delta = b * b - 4 * a * c;
+    let natureHtml = '';
+    let rootsText = '';
+
+    if (delta > 0) {
+      const r1 = ((-b - Math.sqrt(delta)) / (2 * a)).toFixed(2);
+      const r2 = ((-b + Math.sqrt(delta)) / (2 * a)).toFixed(2);
+      natureHtml = '<span class="badge badge-pos">Δ > 0：兩個相異實根（2 個 x 截距）</span>';
+      rootsText = `實根 / x 截距：x ≈ ${r1} 或 x ≈ ${r2}`;
+    } else if (delta === 0) {
+      const r = (-b / (2 * a)).toFixed(2);
+      natureHtml = '<span class="badge badge-zero">Δ = 0：一個二重實根（1 個 x 截距 / 切點）</span>';
+      rootsText = `二重實根 / x 截距：x = ${r}`;
+    } else {
+      natureHtml = '<span class="badge badge-neg">Δ < 0：沒有實根（0 個 x 截距，不相交）</span>';
+      rootsText = `在實數系中無解（拋物線與 x 軸不相交）`;
+    }
+
+    const bStr = b >= 0 ? `+ ${b}x` : `- ${Math.abs(b)}x`;
+    const cStr = c >= 0 ? `+ ${c}` : `- ${Math.abs(c)}`;
+
+    document.getElementById('lab-status').innerHTML = `
+      <div><strong>當前函數：</strong> y = ${a}x² ${bStr} ${cStr}</div>
+      <div style="margin: 0.4rem 0;"><strong>判別式計算：</strong> Δ = (${b})² - 4(${a})(${c}) = <strong>${delta}</strong></div>
+      <div style="margin: 0.4rem 0;">${natureHtml}</div>
+      <div><strong>幾何與代數結果：</strong> ${rootsText}</div>
+    `;
+
+    drawGraph(a, b, c, delta);
+  }
+
+  function drawGraph(a, b, c, delta) {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const originX = w / 2;
+    const originY = h / 2;
+    const scale = 22; // 每單位像素
+
+    // 繪製網格
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 1;
+    for (let x = -10; x <= 10; x++) {
+      ctx.beginPath();
+      ctx.moveTo(originX + x * scale, 0);
+      ctx.lineTo(originX + x * scale, h);
+      ctx.stroke();
+    }
+    for (let y = -8; y <= 8; y++) {
+      ctx.beginPath();
+      ctx.moveTo(0, originY - y * scale);
+      ctx.lineTo(w, originY - y * scale);
+      ctx.stroke();
+    }
+
+    // 繪製座標軸
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, originY); ctx.lineTo(w, originY);
+    ctx.moveTo(originX, 0); ctx.lineTo(originX, h);
+    ctx.stroke();
+
+    // 繪製拋物線
+    ctx.strokeStyle = delta > 0 ? '#16a34a' : (delta === 0 ? '#d97706' : '#dc2626');
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let px = 0; px <= w; px++) {
+      const x = (px - originX) / scale;
+      const y = a * x * x + b * x + c;
+      const py = originY - y * scale;
+      if (px === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // 標示 x 截距點
+    if (delta >= 0) {
+      const r1 = (-b - Math.sqrt(delta)) / (2 * a);
+      const r2 = (-b + Math.sqrt(delta)) / (2 * a);
+      [r1, r2].forEach(r => {
+        const px = originX + r * scale;
+        ctx.fillStyle = '#1e3a8a';
+        ctx.beginPath();
+        ctx.arc(px, originY, 6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+  }
+
+  function checkAns(qNum, isCorrect, msg) {
+    const fb = document.getElementById('fb-' + qNum);
+    fb.style.display = 'block';
+    fb.style.background = isCorrect ? '#dcfce7' : '#fee2e2';
+    fb.style.color = isCorrect ? '#15803d' : '#b91c1c';
+    fb.textContent = (isCorrect ? '✅ ' : '❌ ') + msg;
+  }
+
+  updateLab();
+</script>
+
+</body>
+</html>
